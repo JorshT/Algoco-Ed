@@ -3,6 +3,7 @@
 #include <cmath>  
 #include <algorithm>
 #include <fstream>
+#include <chrono> 
 using namespace std;
 
 
@@ -21,7 +22,7 @@ problemas con el tamaño de los arreglos en memoria
 
 */
 
-const int N = 100;
+const int N = 400;
 
 bool exist_cost_matrix = false;
 
@@ -64,7 +65,7 @@ int costo_ins(char b,int i){
     if(exist_cost_matrix){
         return insert_cost[i];
     }
-    int costo=20;
+    int costo=1;
     return costo;
 }
 
@@ -77,7 +78,7 @@ int costo_del(char a, int i){
     if(exist_cost_matrix){
         return delete_cost[i];
     }
-    int costo=20;
+    int costo=1;
     // Implementación
     return costo;
 }
@@ -140,12 +141,12 @@ int edfb2(string S, string T, int i, int j){
     if((i < ((int)S.size())-1) && j<((int)T.size())-1 && S[i]==T[j+1] && S[i+1] == T[j]){
         cost_transponer = costo_trans(S[i],S[i+1],i,j) + edfb2(S,T,i+2,j+2);
     }
-    cout<<"###############"<<endl;
-    cout<<cost_insert<<endl;
-    cout<<cost_delete<<endl;
-    cout<<cost_sustituir<<endl;
-    cout<<"i,j:"<<i<<" "<<j<<endl;
-    cout<<cost_transponer<<endl;
+    //cout<<"###############"<<endl;
+    //cout<<cost_insert<<endl;
+    //cout<<cost_delete<<endl;
+    //cout<<cost_sustituir<<endl;
+    //cout<<"i,j:"<<i<<" "<<j<<endl;
+    //cout<<cost_transponer<<endl;
     return min(min(cost_insert,cost_delete),min(cost_sustituir,cost_transponer));
 }
 
@@ -184,14 +185,14 @@ int edpd(string S, string T){
                 d[i][j] = d[i-1][j-1];
             }
             else{
-                int cost_eliminar =  d[i-1][j] + costo_del(S[i-1],j);
-                int cost_insertar = d[i][j-1] + costo_ins(T[j-1],i);
-                int cost_sustituir = d[i-1][j-1] + costo_sub(S[i-1],T[j-1],i,j);
+                int cost_eliminar =  d[i-1][j] + costo_del(S[i-1],i-1);
+                int cost_insertar = d[i][j-1] + costo_ins(T[j-1],j-1);
+                int cost_sustituir = d[i-1][j-1] + costo_sub(S[i-1],T[j-1],i-1,j-1);
                 
                 d[i][j] = min(cost_eliminar,min(cost_insertar,cost_sustituir));
                 
                 if( i >1 && S[i-2] == T[j-1] && S[i-1] == T[j-2]){
-                    d[i][j] = min(d[i][j],d[i-2][j-2]+costo_trans(S[i-2],S[i-1],i,j));
+                    d[i][j] = min(d[i][j],d[i-2][j-2]+costo_trans(S[i-2],S[i-1],i-2,j-1));
                 }
 
             }
@@ -215,6 +216,7 @@ int rellenar_matrix(){
     }
     fp>>n;
     if(n>N){
+        cout<<"AQUII"<<endl;
         return -2;
     };
     for(int i=0;i<n;i++){
@@ -288,15 +290,26 @@ int main(){
     exist_cost_matrix=false;
     if(exist_cost_matrix){
         //Leer archivos y rellenar matrices
-        //cout<<"Leyendo valores"<<endl;
+        cout<<"Leyendo valores"<<endl;
         int x= rellenar_matrix();
         if(x<0){
+            cout<<x<<endl;
             return 1;
         }
     }
 
-
+    cout<<"Calculando..."<<endl;
+    auto start_edfb = chrono::high_resolution_clock::now();
     cout<<edfb2(s,t,0,0)<<endl;
+    auto end_edfb = std::chrono::high_resolution_clock::now();
+    auto start_edpd = chrono::high_resolution_clock::now();
     cout<<edpd(s,t)<<endl;
+    auto end_edpd = std::chrono::high_resolution_clock::now();
+
+    auto duration_edfb= std::chrono::duration_cast<std::chrono::milliseconds>(end_edfb - start_edfb); 
+    auto duration_edpd= std::chrono::duration_cast<std::chrono::milliseconds>(end_edpd - start_edpd);
+
+    cout<<"Tiempo de ejecucion algoritmo fuerza bruta: "<<duration_edfb.count()<<" ms"<<endl;
+    cout<<"Tiempo de ejecucion algoritmo programacion dinamica: "<<duration_edpd.count()<<" ms"<<endl;
     return 0;
 }

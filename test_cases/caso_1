@@ -1,3 +1,6 @@
+Estos casos de prueba corresponden a casos en donde hay que insertar o eliminar muchas veces, es decir,
+comparar strings casi vacios con strings largos.
+
 5
 abecedario d
 a bcdlerrtasd

@@ -2,6 +2,7 @@
 #include <string>
 #include <cmath>  
 #include <algorithm>
+#include <chrono> 
 using namespace std;
 
 
@@ -113,11 +114,11 @@ int edpd(string S, string T){
     //inicializar la matriz con costos de insercion y eliminacion para los casos base.
 
     for(int i=1;i<=n;i++){
-        d[i][0] = d[i-1][0] + costo_del(S[i-1]);
+        d[i][0] = d[i-1][0] + costo_del(S[i-1],i);
     }
 
     for(int j=1;j<=m;j++){
-        d[0][j] = d[0][j-1] + costo_ins(T[j-1]);
+        d[0][j] = d[0][j-1] + costo_ins(T[j-1],j);
     }
 
     //Parte de rellenaar la matriz:
@@ -128,27 +129,21 @@ int edpd(string S, string T){
                 d[i][j] = d[i-1][j-1];
             }
             else{
-                int cost_eliminar =  d[i-1][j] + costo_del(S[i-1]);
-                int cost_insertar = d[i][j-1] + costo_ins(T[j-1]);
-                int cost_sustituir = d[i-1][j-1] + costo_sub(S[i-1],T[j-1]);
+                int cost_eliminar =  d[i-1][j] + costo_del(S[i-1],j);
+                int cost_insertar = d[i][j-1] + costo_ins(T[j-1],i);
+                int cost_sustituir = d[i-1][j-1] + costo_sub(S[i-1],T[j-1],i,j);
                 
                 d[i][j] = min(cost_eliminar,min(cost_insertar,cost_sustituir));
                 
                 if( i >1 && S[i-2] == T[j-1] && S[i-1] == T[j-2]){
-                    d[i][j] = min(d[i][j],d[i-2][j-2]+costo_trans(S[i-2],S[i-1]));
+                    d[i][j] = min(d[i][j],d[i-2][j-2]+costo_trans(S[i-2],S[i-1],i,j));
                 }
 
             }
         }
     }
-
-    return d[n][m];
-
-
-
-
+    return d[n][m];return d[n][m];
 }
-
 
 
 
